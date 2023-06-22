@@ -1,0 +1,28 @@
+{
+  "395639886": {
+    "act_city": "\u041f\u0430\u0440\u0438\u0436",
+    "min": 10,
+    "max": 10000,
+    "arrival": {
+      "year": 2023,
+      "month": 8,
+      "day": 16
+    },
+    "departure": {
+      "year": 2023,
+      "month": 9,
+      "day": 16
+    },
+    "guest_num": 3,
+    "child_bool": true,
+    "childs": "2",
+    "childs_age": [
+      {
+        "age": 6
+      },
+      {
+        "age": 7
+      }
+    ]
+  }
+}
