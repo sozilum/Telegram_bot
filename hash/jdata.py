@@ -16,7 +16,7 @@ class jData:
         """
         Задаеться дата прибытия в виде строки для передачи в шаблон запроса
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
 
             ar_date = ar_date.split('-')
@@ -26,7 +26,7 @@ class jData:
 
             loaded_dict[self.__user_id]['arrival'] = rec_dict
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -34,7 +34,7 @@ class jData:
         """
         Задаеться дата вылета в виде строки для передачи в шаблон запроса
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
 
             dep_date = dep_date.split('-')
@@ -44,7 +44,7 @@ class jData:
 
             loaded_dict[self.__user_id]['departure'] = rec_dict
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -52,11 +52,11 @@ class jData:
         """
         Задаеться колличество людей для прибытия
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             loaded_dict[self.__user_id]['guest_num'] = guests
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -64,7 +64,7 @@ class jData:
         """
         Указываеться будут-ли дети среди гостей
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             loaded_dict[self.__user_id]['child_bool'] = child
 
@@ -72,7 +72,7 @@ class jData:
                 loaded_dict[self.__user_id]['childs'] = list()
                 
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -80,11 +80,11 @@ class jData:
         """
         Задаеться колличество детей для шаблона 
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             loaded_dict[self.__user_id]['childs'] = childs_num
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -93,7 +93,7 @@ class jData:
         Задаеться возраст детей
         """
 
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             
             if len(ages) == 1:
@@ -107,7 +107,7 @@ class jData:
                 
                 loaded_dict[self.__user_id]['childs_age'] = local_list
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -115,11 +115,11 @@ class jData:
         """
         Задаеться пользователь
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             loaded_dict.update({self.__user_id: None})
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -127,13 +127,13 @@ class jData:
         """
         Задача диапазона цен для шаблона 
         """
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             custom_price.split('-')
             loaded_dict[self.__user_id]['min'] = custom_price[0]
             loaded_dict[self.__user_id]['max'] = custom_price[1]
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -144,13 +144,14 @@ class jData:
         self.__user_actual_city = city
         self.__sql.set_user(self.__user_id, city)
 
-        with open('Hash/hash.json') as r_hash:
+        with open('hash/hash.json') as r_hash:
             loaded_dict = json.load(r_hash)
             loaded_dict.update({self.__user_id: {'act_city': city}})
             loaded_dict[self.__user_id]['min'] = 10
             loaded_dict[self.__user_id]['max'] = 10000
+            loaded_dict[self.__user_id]['childs_age'] = list()
 
-        with open('Hash/hash.json', 'w') as w_hash:
+        with open('hash/hash.json', 'w') as w_hash:
             json.dump(loaded_dict, w_hash, indent = 2)
 
 
@@ -159,7 +160,7 @@ class jData:
         Возвращает название города, сначала проверяет в hash.json, если там не находит то в Users_DataBase.sql
         """
         if self.__user_actual_city == None:
-            with open('Hash/hash.json') as hash:
+            with open('hash/hash.json') as hash:
                 try:
                     return json.load(hash)[self.__user_id]['act_city']
                 
@@ -174,7 +175,7 @@ class jData:
         Проверяет новый-ли пользователь использует бота при команде /start если не находит в hash.json, то изет в Users_DataBase.sql
         """
 
-        with open('Hash/hash.json') as hash:
+        with open('hash/hash.json') as hash:
             try:
                 json.load(hash)[self.__user_id]
                 return True

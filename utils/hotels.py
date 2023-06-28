@@ -36,8 +36,9 @@ class Hotels:
         Обнуление индекса для срезания списка.
         """
         url = "https://hotels4.p.rapidapi.com/properties/v2/list"
-        #Здесть почему-то прихолдит ответ по старому запросу, помогает только перезапуск бота 
-        with open('Hash/hash.json') as file:
+        self.__region_list_id = list()
+
+        with open('hash/hash.json') as file:
             jfile = json.load(file)
             user = jfile[act_user]
             self.set_cities_list_id(user['act_city'])
@@ -89,24 +90,28 @@ class Hotels:
         """
         hotel_list = json_response['data']['propertySearch']['properties']
         
-        with open('Hash/hotels_hash.json') as jfile:
+        with open('hash/hotels_hash.json') as jfile:
             user = json.load(jfile)
 
             user[act_user] = {'hotels': list()}    
 
             for i_hotel in hotel_list:
-                aux_dict = dict()
-                aux_dict['hotel_name'] = i_hotel['name']
-                aux_dict['image_url'] = i_hotel['propertyImage']['image']['url']
-                aux_dict['miles'] = i_hotel['destinationInfo']['distanceFromDestination']['value']
-                aux_dict['amount'] = i_hotel['price']['lead']['amount']
-                aux_dict['reviews'] = i_hotel['reviews']['score'],
-                aux_dict['description_to_url'] = i_hotel['propertyImage']['image']['description']
-                    
-                user[act_user]['hotels'].append(aux_dict)
+                try:
+                    aux_dict = dict()
+                    aux_dict['hotel_name'] = i_hotel['name']
+                    aux_dict['image_url'] = i_hotel['propertyImage']['image']['url']
+                    aux_dict['miles'] = i_hotel['destinationInfo']['distanceFromDestination']['value']
+                    aux_dict['amount'] = i_hotel['price']['lead']['amount']
+                    aux_dict['reviews'] = i_hotel['reviews']['score'],
+                    aux_dict['description_to_url'] = i_hotel['propertyImage']['image']['description']
+                        
+                    user[act_user]['hotels'].append(aux_dict)
+                except:
+                    continue
+
             user[act_user].update({'act_index': 0})
 
-        with open('Hash/hotels_hash.json', 'w') as file:
+        with open('hash/hotels_hash.json', 'w') as file:
             json.dump(user, file, indent= 2)
 
 
@@ -114,12 +119,12 @@ class Hotels:
         """
         возвращает список форматированных отелей
         """
-        with open('Hash/hotels_hash.json') as file:
+        with open('hash/hotels_hash.json') as file:
             user = json.load(file)
             user[act_user]['act_index'] += index
             aux = user[act_user]['hotels'][user[act_user]['act_index'] - 5:user[act_user]['act_index']:]
         
-        with open('Hash/hotels_hash.json', 'w') as file:
+        with open('hash/hotels_hash.json', 'w') as file:
             user = json.dump(user, file, indent= 2)
 
         return aux

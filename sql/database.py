@@ -8,7 +8,7 @@ class Base - Базовые параметры создания стола дя�
 """
 class User_table(Base):
     """
-    Создание стола для Users_DataBase
+    Создание стола для users_database
     """
     __tablename__ = 'User'
 
@@ -22,7 +22,7 @@ class User:
         """
         Запуск двигателя и создание сессии sqlalchemy
         """
-        self.__engine = create_engine('sqlite:///sql/Users_DataBase.sql', echo = True)
+        self.__engine = create_engine('sqlite:///sql/users_database.sql', echo = True)
         self._meta = Base.metadata.create_all(self.__engine)
         self.__session = Session(self.__engine)
 

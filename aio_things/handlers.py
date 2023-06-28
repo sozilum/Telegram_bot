@@ -1,6 +1,6 @@
 import re
-from utils.Hotels import Hotels
-from Hash.jdata import jData
+from utils.hotels import Hotels
+from hash.jdata import jData
 from aiogram import types, Router
 from aiogram.types import Message, CallbackQuery
 from aio_things.buttons import Buttons
