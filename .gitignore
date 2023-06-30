@@ -2,4 +2,5 @@ aio_things/__pycache__
 Hash/__pycache__
 sql/__pycache__
 utils/__pycache__
+sql/users_database.sql
 .env
