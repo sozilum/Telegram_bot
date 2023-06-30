@@ -3,4 +3,6 @@ Hash/__pycache__
 sql/__pycache__
 utils/__pycache__
 sql/users_database.sql
+hash/hash.json
+hash/hotels_hash.json
 .env
