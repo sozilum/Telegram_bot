@@ -1,6 +1,5 @@
 import re
 from utils.hotels import Hotels
-from hash.jdata import jData
 from aiogram import types, Router
 from aiogram.types import Message, CallbackQuery
 from aio_things.buttons import Buttons
@@ -9,11 +8,11 @@ from aiogram.filters import Command, Text
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-
+from hash.hash import Hash
 
 router = Router()
 buttons = Buttons()
-booking = Hotels()
+user = Hash()
 
 class Form(StatesGroup):
     """
@@ -38,17 +37,15 @@ async def main(message: Message) -> Message:
 
     """
 
-    user = jData(str(message.from_user.id))
-    check_result = user.check_user()
+    check_result = user.check(message.from_user.id)
 
     
     if check_result:
         kb = types.ReplyKeyboardMarkup(keyboard = buttons.main_button(), resize_keyboard = True, input_field_placeholder = 'Выберите действие')
-        await message.answer('Здравствуйте!\nУ вас указан город {}'.format(user.get_user_city()),
+        await message.answer('Здравствуйте!\nУ вас указан город {}'.format(user.get_user_city(message.from_user.id)),
                             reply_markup = kb)
 
     else:
-        user.set_user()
         keyboard_list = [
             [types.KeyboardButton(text = 'Указать город')]
             ]
@@ -80,8 +77,8 @@ async def citychoice(message: Message, state: FSMContext) -> Message:
     """
 
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
-    user.update_user_city(message.text)
+    
+    user.set_user_city(message.from_user.id, message.text)
     await state.set_state(Form.arrival_date)
     await message.answer('У вас указан город {}\nВведите дату прибытия в формате\nГод-месяц-день '.format(message.text))
     
@@ -93,9 +90,9 @@ async def arrival_date(message: Message, state: FSMContext) -> Message:
     """
 
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
+    
     if re.fullmatch('\d{4}-\d{2}-\d{2}', message.text):
-        user.set_arrival_date(message.text)
+        user.set_user_arrival(message.from_user.id, message.text)
         await state.set_state(Form.departure_date)
         await message.answer('Ваша дата прибытия {}\nВведите дату вылета в формате\nГод-месяц-день'.format(message.text))
     
@@ -111,9 +108,9 @@ async def depart_date(message: Message, state: FSMContext) -> Message:
     """
 
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
+    
     if re.fullmatch('\d{4}-\d{2}-\d{2}', message.text):
-        user.set_departure_date(message.text)
+        user.set_user_departure(message.from_user.id, message.text)
         await state.set_state(Form.guests_num)
         await message.answer('Ваша дата вылета {}\nВведите колличество человек:'.format(message.text))
     
@@ -129,12 +126,12 @@ async def guest_num(message: Message, state: FSMContext) -> Message:
     """
 
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
-    user.set_guest_num(int(message.text))
+    
+    user.set_user_guests(message.from_user.id, int(message.text))
     if int(message.text) == 1:
         kb = types.ReplyKeyboardMarkup(keyboard = buttons.main_button(), resize_keyboard = True, input_field_placeholder = 'Выберите действие')
         await message.answer('Параметры введены, выберите способо фильтрации', reply_markup= kb)
-        user.set_child_bool(False)
+        user.set_childs_num(message.from_user.id, 0)
         await state.clear()
 
     
@@ -154,14 +151,13 @@ async def childs_bool(message: Message, state: FSMContext) -> Message:
     """
 
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
+    
     if str(message.text).lower() == 'да':
-        user.set_child_bool(True)
         await state.set_state(Form.childs_num)
         await message.answer('Введите Колличетсво детей: ')
 
     else:
-        user.set_child_bool(False)
+        user.set_childs_num(str(message.from_user.id), 0)
         await message.answer('Параметры введены, выберите из меню способ фильтраци')
         await state.clear()
 
@@ -173,8 +169,8 @@ async def childs_nums(message: Message, state: FSMContext) -> Message:
 
     """
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
-    user.set_childs_num(message.text)
+    
+    user.set_childs_num(message.from_user.id, message.text)
     await state.set_state(Form.childs_age)
     await message.answer('Колличество детей: {}\nВведите возраст детей через запятую: '.format(message.text))
 
@@ -186,8 +182,8 @@ async def childs_ages(message: Message, state: FSMContext) -> Message:
     """
     
     await state.update_data(name = message.text)
-    user = jData(str(message.from_user.id))
-    user.set_childs_age(message.text)
+    
+    user.set_childs_age(message.from_user.id, message.text)
     await message.answer('Параметры указаны, выберите из меню способ фильтрации')
     await state.clear()
 
@@ -198,8 +194,8 @@ async def apart_price_low(message: Message) -> Message:
     Вывод апартаментов с фильтрацией от самых дорогих до самых дешёвых
 
     """
-    booking.set_propereties_list(str(message.from_user.id))
-    hotel_list = booking.get_hotel_list(act_user= str(message.from_user.id))
+    user.set_propereties_list(message.from_user.id)
+    hotel_list = user.get_hotel_list(message.from_user.id)
     kb = InlineKeyboardBuilder()
     kb.row(
         types.InlineKeyboardButton(text = '<', callback_data=  'previous_page'),
@@ -223,8 +219,8 @@ async def apart_price_hight(message: Message) -> Message:
     """
     Вывод апартаментов с фильтрацией от самых дорогих к самым дешёвым
     """
-    booking.set_propereties_list(str(message.from_user.id), sort_bool= True)
-    hotel_list = booking.get_hotel_list(act_user= str(message.from_user.id))
+    user.set_propereties_list(message.from_user.id, sort_type= True)
+    hotel_list = user.get_hotel_list(message.from_user.id)
     kb = InlineKeyboardBuilder()
     kb.row(
         types.InlineKeyboardButton(text = '<', callback_data=  'previous_page'),
@@ -261,11 +257,11 @@ async def request_custom_aparts(message: Message, state: FSMContext) -> Message:
     await state.update_data(name = message.text)
     
     if re.fullmatch('\d+-\d+', message.text):
-        user = jData(str(message.from_user.id))
-        user.set_custom_price(message.text)
+        
+        user.set_custom_price(message.from_user.id, message.text)
         await state.clear()
         
-        hotel_list = booking.get_hotel_list(act_user= str(message.from_user.id))
+        hotel_list = user.get_hotel_list(message.from_user.id)
         kb = InlineKeyboardBuilder()
         kb.row(
         types.InlineKeyboardButton(text = '<', callback_data=  'previous_page'),
@@ -293,7 +289,7 @@ async def previous_page(callback: CallbackQuery) -> Message:
     """
     Создаються кнопки при нажатии на которые передаеться отрицательны индекс для срезания списка и возврата 
     """
-    hotel_list = booking.get_hotel_list(act_user= str(callback.from_user.id), index= -5)
+    hotel_list = user.get_hotel_list(callback.from_user.id, index= -5)
     kb = InlineKeyboardBuilder()
     kb.row(
         types.InlineKeyboardButton(text = '<', callback_data=  'previous_page'),
@@ -316,7 +312,7 @@ async def next_page(callback: CallbackQuery) -> Message:
     """
     Создаються кнопки при нажатии на которые передаеться индекс для срезания списка и возврата 
     """
-    hotel_list = booking.get_hotel_list(act_user= str(callback.from_user.id))
+    hotel_list = user.get_hotel_list(callback.from_user.id)
     kb = InlineKeyboardBuilder()
     kb.row(
         types.InlineKeyboardButton(text = '<', callback_data=  'previous_page'),
@@ -339,9 +335,8 @@ async def apart_history(message: Message) -> Message:
     """
     Вывод списка городов которые ранее запрашивал пользователь
     """
-    user = jData(str(message.from_user.id))
-    history_list = user.aux_get_history()
+    
     await message.answer('Вот история запросов городов: ')
-
-    for i_city in history_list:
+    
+    for i_city in user.get_history(message.from_user.id):
         await message.answer('{}'.format(i_city))
