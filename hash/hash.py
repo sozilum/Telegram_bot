@@ -1,10 +1,10 @@
 from utils.hotels import Hotels
 
-#TODO в users params сохранять историю и параметры 
 
 class Hash:
     def __init__(self) -> None:
         self.__booking = Hotels()
+        self.__booking.env_init()
         self.__users = dict()
 
 
@@ -13,7 +13,6 @@ class Hash:
         Проверяет есть-ли id пользователя в словаре и если есть, то возвращает True, в противном случае добавляет в словарь
         id пользователя и возвращает False 
         """
-
         if id in self.__users:
             return True
         

@@ -1,11 +1,51 @@
+import os
 import requests
+from dotenv import load_dotenv, find_dotenv
 
 
-class Hotels:
+class Env:
     def __init__(self) -> None:
-        self.__headers = {
-            "X-RapidAPI-Key": "5bafa34540msh145ec0d2cb36517p13be7ajsn0fdf84d81f8a",
-            "X-RapidAPI-Host": "hotels4.p.rapidapi.com"}
+        self.__header = dict()
+        self.__prop_header = dict()
+
+
+    def env_init(self) -> None:
+        """
+        Инициализирует файл .env и собирает словарь для отправки запросов 
+        """
+
+        aux = list()
+        load_dotenv(find_dotenv())
+        main_header = os.environ.get('HEADER')
+        for i_name in main_header.split(','):
+            aux.append(i_name.split(':'))
+        
+        self.__header.update({aux[0][0]: aux[0][1], aux[1][0]: aux[1][1]})
+        aux = list()
+
+        prop_header = os.environ.get('PROPERETIES_HEADER')
+        for i_name in prop_header.split(','):
+            aux.append(i_name.split(':'))
+        
+        self.__prop_header.update({aux[0][0]: aux[0][1], aux[1][0]: aux[1][1], aux[2][0]: aux[2][1]})
+
+    
+    def get_main_header(self) -> dict:
+        """
+        Возвращает ключи для запроса в виде словаря 
+        """
+        return self.__header
+    
+    
+    def get_prop_header(self) -> dict:
+        """
+        Возвращает ключи для запроса propereties в виде словаря
+        """
+        return self.__prop_header
+
+class Hotels(Env):
+    def __init__(self) -> None:
+        super().__init__()
         self.__sort_type = ['PRICE_LOW_TO_HIGH', 'PRICE_HIGH_TO_LOW']
         self.__region = dict()
         self.__utils_hash = dict()
@@ -18,8 +58,9 @@ class Hotels:
         RUS регион игнорируеться так-как агрегатор не выдает информации по жтому региону
         """
         url = "https://hotels4.p.rapidapi.com/locations/v3/search"
-        querystring = {"q":city,"locale":"ru","langid":"1033","siteid":"300000001"}        
-        response = requests.get(url, headers=self.__headers, params=querystring)
+        querystring = {"q":city,"locale":"ru","langid":"1033","siteid":"300000001"}
+        token = self.get_main_header()
+        response = requests.get(url, headers= token, params=querystring)
 
         for i_hotel in response.json()['sr']:
             if i_hotel['hierarchyInfo']['country']['isoCode3'] != 'RUS':
@@ -72,12 +113,8 @@ class Hotels:
                             "min": min_price
                         } }}
 
-        local_headers = {
-            "content-type": "application/json",
-            "X-RapidAPI-Key": "5bafa34540msh145ec0d2cb36517p13be7ajsn0fdf84d81f8a",
-            "X-RapidAPI-Host": "hotels4.p.rapidapi.com"}
-        
-        response = requests.post(url, json= payload, headers= local_headers)
+        token = self.get_prop_header()
+        response = requests.post(url, json= payload, headers= token)
 
         self.collecting_responces(id, response.json())
 
