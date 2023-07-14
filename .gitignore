@@ -1,8 +1,4 @@
 aio_things/__pycache__
-Hash/__pycache__
-sql/__pycache__
+hash/__pycache__
 utils/__pycache__
-sql/users_database.sql
-hash/hash.json
-hash/hotels_hash.json
 .env
