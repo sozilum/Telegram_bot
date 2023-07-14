@@ -7,3 +7,5 @@
 .env.exmple, так же поместить туда 'HEADER' и 'PROPERETIES_HEADER'.
 
 Запустить файл main.py
+
+Документация для api отеля https://rapidapi.com/apidojo/api/hotels4
